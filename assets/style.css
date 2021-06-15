@@ -1,0 +1,20 @@
+#header {
+    text-align: center;
+    background-color: aliceblue;
+    border-style: solid, black;
+    
+} 
+.container { 
+    background-color: aliceblue;
+    display: flex; 
+    flex-direction: row; 
+    justify-content: center;
+
+}
+.box { 
+    border: solid;
+    border-color: black;
+    width: 250px; 
+    height: 250px;
+    
+}
