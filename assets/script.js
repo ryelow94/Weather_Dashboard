@@ -1,7 +1,8 @@
 var searchButton = document.querySelector("#search-button") 
 var searchText = document.querySelector("#search-text")
 var apiKey = "88600ab20da1ad63651c7d80a894f478" 
-var archive= JSON.parse(window.localStorage.getItem("archive"))|| [];
+var archive= JSON.parse(window.localStorage.getItem("archive"))|| []; 
+var timeZoneOffSet = 0
 
 function getCurrentWeather(event) { 
     event.preventDefault()
@@ -12,7 +13,9 @@ function getCurrentWeather(event) {
       return response.json(); 
     }) 
     .then(function(data) {  
-        console.log(data)
+        console.log(data) 
+        timeZoneOffSet = data.timezone 
+        console.log(timeZoneOffSet)
         const coord= data.coord 
         const lat = coord.lat 
         const long = coord.long 
@@ -39,7 +42,7 @@ function getCurrentWeather(event) {
     currentWeatherHumidity.textContent=data.main.humidity + "%"+" humidity"
     currentWeatherWind.textContent=data.wind.speed + "MPH"+" windspeed"
     //creates the icon for weather display
-    currentWeatherImg.setAttribute("src", "https://openweathermap.org/img/w/" + data.weather[0].icon + ".png")
+    currentWeatherImg.setAttribute("src", `https://openweathermap.org/img/w/${data.weather[0].icon}.png`)
 
     currentWeather.appendChild(currentWeatherCard)
     currentWeatherCard.appendChild(currentWeatherBody)
@@ -84,7 +87,7 @@ function getFiveDayForecast(event) {
             currentWeatherDateAndTime.classList="card-text"
 
             currentWeatherTitle.textContent=data.city.name;
-            currentWeatherDateAndTime.textContent=data.list[i].dt_txt
+            currentWeatherDateAndTime.textContent=timeConverter(data.list[i].dt+timeZoneOffSet);
             currentWeatherTemp.textContent= data.list[i].main.temp + "°F"
             currentWeatherHumidity.textContent=data.list[i].main.humidity + "%"+" humidity"
             currentWeatherWind.textContent=data.list[i].wind.speed + "MPH"+" windspeed"
@@ -104,13 +107,34 @@ function getFiveDayForecast(event) {
     });
 } 
 
+    function timeConverter(UNIX_timestamp){
+        var a = new Date(UNIX_timestamp * 1000);
+        var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        var year = a.getUTCFullYear();
+        var month = months[a.getUTCMonth()];
+        var date = a.getUTCDate();
+        var hour = a.getUTCHours();
+        var min = a.getUTCMinutes();
+        if(min < 10){
+            min = `0${a.getUTCMinutes()}`;
+        } else{
+            min = a.getUTCMinutes();
+        }
+        var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min ;
+        return time;
+      }
+      console.log(timeConverter(0));
+
+
 function appendLocalStorage() {
     for (let i = 0; i < archive.length; i++) {
         var ulEl=document.getElementById("local-storage") 
         var liEl=document.createElement("li")
         var button=document.createElement("button") 
+        liEl.classList="list-group-item"
         button.setAttribute("data-city", archive[i])
-        button.textContent="search"
+        button.textContent="search" 
+        button.classList = "btn btn-primary"
         button.addEventListener("click",function(event) {
             console.log(event.target.getAttribute("data-city"))
             searchText.value=event.target.getAttribute("data-city")
@@ -119,7 +143,7 @@ function appendLocalStorage() {
         })
         liEl.textContent=archive[i] 
         ulEl.appendChild(liEl)
-        liEl.appendChild(button) 
+        ulEl.appendChild(button) 
     }
 } 
 
